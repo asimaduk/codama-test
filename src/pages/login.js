@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { confirmationFields, loginFields } from "../constants/formFields";
 import Input from "../components/input";
 import FormAction from '../components/formaction';
-import { signInWithPhoneNumber } from 'firebase/auth';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { auth } from '../firebase-config';
 
 let fields = loginFields;
@@ -10,13 +10,25 @@ let fieldsState = {};
 fields.forEach(field=>fieldsState[field.id]='');
 
 let confirmFunction;
-const appVerifier = window.recaptchaVerifier;
 
 export default function Login(){
     const [loginState,setLoginState]=useState(fieldsState);
     const [processing, setProcessing] = useState(false);
     const [showCode, setShowCode] = useState(false);
 
+    useEffect(()=> {
+        setuprecaptcha()
+    }, [])
+
+    const setuprecaptcha = () => {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'sign-in-button', {
+            'size': 'invisible',
+            'callback': (response) => {
+            // reCAPTCHA solved, allow signInWithPhoneNumber.
+            //   onSignInSubmit();
+            }
+        });
+    }
     const handleChange=(e)=>{
         setLoginState({...loginState,[e.target.id]:e.target.value})
     }
@@ -38,9 +50,11 @@ export default function Login(){
             }
             else {
                 setProcessing(true);
+                const appVerifier = window.recaptchaVerifier;
+
                 signInWithPhoneNumber(auth, phoneNumber, appVerifier)
                     .then((confirmationResult) => {
-                        console.log('confirm',confirmationResult);
+                        // console.log('confirm',confirmationResult);
                         // SMS sent. Prompt user to type the code from the message, then sign the
                         // user in with confirmationResult.confirm(code).
                         window.confirmationResult = confirmationResult;
@@ -56,14 +70,15 @@ export default function Login(){
                     }).catch((error) => {
                         alert('An error occurred. Please try again');
                         setProcessing(false);
-                        console.log('err',error);
+                        // console.log('err',error);
                     });
                 }
         }
       }
     
       const handleConfirm = () => {   
-          const code = loginState['code'];
+          const code = loginState['phone-number'];
+          console.log('coilde',code);
           if(!code || code.length !== 6){
             alert('Invalid code provided')
             return
@@ -83,6 +98,7 @@ export default function Login(){
     return(
         <form className="mt-8 space-y-6">
             <p>Please login</p>
+            {/* <button id='sign-in-button'>test</button> */}
             <div className="-space-y-px">
                 {
                     fields.map(field=>
@@ -104,7 +120,7 @@ export default function Login(){
                 }
             </div>
 
-            <FormAction handleSubmit={handleSubmit} disabled={processing} action='button' text={processing ? "Please wait...": showCode ? "Verify code" : "Login"}/>
+            <FormAction handleSubmit={handleSubmit} disabled={processing} id='sign-in-button' action='button' text={processing ? "Please wait...": showCode ? "Verify code" : "Login"}/>
       </form>
     )
 }

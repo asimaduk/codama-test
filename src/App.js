@@ -57,7 +57,7 @@ function App() {
         )
         :
         (
-          <Login />
+          <Login auth={auth} />
         )}
       </div>
     </div>
