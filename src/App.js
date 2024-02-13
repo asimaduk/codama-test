@@ -11,7 +11,6 @@ auth.languageCode = 'it';
 function App() {
   const [isLoggedIn, setIsLogged] = useState(false);
   const [processing, setProcessing] = useState(true);
-  const [loggedInUser, setLoggedInUser] = useState({});
   const [userData, setUserData] = useState({})
 
   useEffect(()=> {
@@ -19,14 +18,13 @@ function App() {
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        setLoggedInUser(user);
         getUserData(user.phoneNumber)
       } else {
         setIsLogged(false);
         setProcessing(false)
       }
     });
-  }, [setLoggedInUser, setIsLogged, setProcessing])
+  }, [setIsLogged, setProcessing])
 
   const getUserData = async (phoneNumber) => {
     const docRef = doc(db, "users", phoneNumber);

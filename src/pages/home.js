@@ -47,7 +47,7 @@ export default function Home({ userData }){
         }
         else {
             setProcessing(true)
-            const res = await setDoc(doc(db, "users", userData.phoneNumber), data);
+            await setDoc(doc(db, "users", userData.phoneNumber), data);
             alert('Update processed')
             setProcessing(false)
         }
