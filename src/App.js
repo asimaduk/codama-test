@@ -11,7 +11,8 @@ auth.languageCode = 'it';
 function App() {
   const [isLoggedIn, setIsLogged] = useState(false);
   const [processing, setProcessing] = useState(true);
-  const [loggedInUser, setLoggedInUser] = useState({})
+  const [loggedInUser, setLoggedInUser] = useState({});
+  const [userData, setUserData] = useState({})
 
   useEffect(()=> {
     // setupRecapture();
@@ -25,7 +26,7 @@ function App() {
         setProcessing(false)
       }
     });
-  }, [])
+  }, [setLoggedInUser, setIsLogged, setProcessing])
 
   const getUserData = async (phoneNumber) => {
     const docRef = doc(db, "users", phoneNumber);
@@ -34,7 +35,10 @@ function App() {
     if (docSnap.exists()) {
       const snap = docSnap.data()
       // console.log("Document data:", snap);
-      setLoggedInUser(snap)
+      setUserData({
+        ...snap,
+        phoneNumber
+      })
       
       setIsLogged(true)
       setProcessing(false)
@@ -53,7 +57,7 @@ function App() {
         )
         :
         isLoggedIn ? (
-          <Home userData={loggedInUser} />
+          <Home userData={userData} />
         )
         :
         (

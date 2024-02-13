@@ -77,13 +77,14 @@ export default function Login(){
       }
     
       const handleConfirm = () => {   
-          const code = loginState['phone-number'];
-          console.log('coilde',code);
+          const code = loginState['otp-code'];
+        //   console.log('coilde',loginState);
           if(!code || code.length !== 6){
             alert('Invalid code provided')
             return
           } 
-            setProcessing(true)
+            setProcessing(true);
+            // console.log('code',code,'confirmFunction',confirmFunction);
             confirmFunction.confirm(code).then((result) => {
                 // User signed in successfully.
                 // console.log('confirm data',result);
