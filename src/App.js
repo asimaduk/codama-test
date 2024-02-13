@@ -1,23 +1,65 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore"; 
+
+import { auth, db } from './firebase-config';
+import Login from './pages/login';
+import Home from './pages/home';
+
+auth.languageCode = 'it';
 
 function App() {
+  const [isLoggedIn, setIsLogged] = useState(false);
+  const [processing, setProcessing] = useState(true);
+  const [loggedInUser, setLoggedInUser] = useState({})
+
+  useEffect(()=> {
+    // setupRecapture();
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setLoggedInUser(user);
+        getUserData(user.phoneNumber)
+      } else {
+        setIsLogged(false);
+        setProcessing(false)
+      }
+    });
+  }, [])
+
+  const getUserData = async (phoneNumber) => {
+    const docRef = doc(db, "users", phoneNumber);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const snap = docSnap.data()
+      // console.log("Document data:", snap);
+      setLoggedInUser(snap)
+      
+      setIsLogged(true)
+      setProcessing(false)
+    } else {
+      // docSnap.data() will be undefined in this case
+      // console.log("No such document!");
+      setProcessing(false)
+    }
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-full h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8" style={{backgroundColor:'#ccc',padding:30, borderRadius:5}}>
+        {processing ? (
+          <p>Just a moment...</p>
+        )
+        :
+        isLoggedIn ? (
+          <Home userData={loggedInUser} />
+        )
+        :
+        (
+          <Login />
+        )}
+      </div>
     </div>
   );
 }
