@@ -18,7 +18,7 @@ export default function Home({ userData }){
     }
 
     useEffect(()=> {
-        if(userData && userData.uid){
+        if(userData && userData.email){
             let fieldsState = {
                 email: userData.email,
                 name: userData.name

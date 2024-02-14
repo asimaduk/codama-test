@@ -6,7 +6,7 @@ import { auth, db } from './firebase-config';
 import Login from './pages/login';
 import Home from './pages/home';
 
-auth.languageCode = 'it';
+auth.languageCode = 'en';
 
 function App() {
   const [isLoggedIn, setIsLogged] = useState(false);
@@ -14,8 +14,6 @@ function App() {
   const [userData, setUserData] = useState({})
 
   useEffect(()=> {
-    // setupRecapture();
-
     onAuthStateChanged(auth, (user) => {
       if (user) {
         getUserData(user.phoneNumber)
